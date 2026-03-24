@@ -50,7 +50,7 @@ def load_listing_results(html_path) -> list[tuple]:
         if "/rooms/" not in href:
             continue
         listing_id = href.split("/rooms/")[1].split("?")[0]
-        title = link.get_text(strip=True)
+        title = link.text.strip()
 
         if title:
             results.append((title, listing_id))
@@ -85,7 +85,59 @@ def get_listing_details(listing_id) -> dict:
     # ==============================
     # YOUR CODE STARTS HERE
     # ==============================
-    pass
+    file_path = f"listing_{listing_id}.html"
+    with open(file_path, "r", encoding="utf-8-sig") as f:
+        soup = BeautifulSoup(f, "html.parser")
+    
+    text = soup.text 
+    if 'pending' in text:
+        policy_number = 'Pending'
+    elif 'exmept' in text:
+        policy_number = 'exempt'
+
+    #Not too sure how to do the policy number 
+
+    if "Superhost" in text:
+        host_type = "Superhost"
+    else:
+        host_type = "Regular"
+    
+    host_name = ""
+    for line in text.split("\n"):
+        if "Hosted by" in line:
+            host_name = line.split("Hosted by")[1].strip()
+            
+    
+    title = soup.find("title").text
+    if "Private" in title:
+        room_type = "Private Room"
+    elif "Shared" in title:
+        room_type = "Shared Room"
+    else:
+        room_type = "Entire Room"
+
+    location_rating = 0.0
+    lines = text.split("\n")
+    for i in range(len(lines)):
+        if "Location" in lines[i]:
+            if i + 1 < len(lines):
+                try:
+                    location_rating = float(lines[i+1].strip())
+                except:
+                    pass
+            break
+
+    return {
+        listing_id: {
+            "policy_number": policy_number,
+            "host_type": host_type,
+            "host_name": host_name,
+            "room_type": room_type,
+            "location_rating": location_rating
+        }
+    }
+
+    # pass
     # ==============================
     # YOUR CODE ENDS HERE
     # ==============================
@@ -254,7 +306,6 @@ class TestCases(unittest.TestCase):
 def main():
     detailed_data = create_listing_database(os.path.join("html_files", "search_results.html"))
     output_csv(detailed_data, "airbnb_dataset.csv")
-
 
 if __name__ == "__main__":
     main()
