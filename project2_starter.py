@@ -1,6 +1,6 @@
 # SI 201 HW4 (Library Checkout System)
-# Your name:
-# Your student id:
+# Your name: Loryn Canty
+# Your student id: 31004224
 # Your email:
 # Who or what you worked with on this homework (including generative AI like ChatGPT):
 # If you worked with generative AI also add a statement for how you used it.
@@ -41,7 +41,22 @@ def load_listing_results(html_path) -> list[tuple]:
     # ==============================
     # YOUR CODE STARTS HERE
     # ==============================
-    pass
+    results = []
+    with open(html_path, "r", encoding="utf-8-sig") as f:
+        soup = BeautifulSoup(f, "html.parser")
+    
+    for link in soup.find_all("a", href=True):
+        href = link["href"]
+        if "/rooms/" not in href:
+            continue
+        listing_id = href.split("/rooms/")[1].split("?")[0]
+        title = link.get_text(strip=True)
+
+        if title:
+            results.append((title, listing_id))
+    return results 
+
+    # pass
     # ==============================
     # YOUR CODE ENDS HERE
     # ==============================
@@ -223,6 +238,7 @@ class TestCases(unittest.TestCase):
         # TODO: Check that the first data row matches ["Guesthouse in San Francisco", "49591060", "STR-0000253", "Superhost", "Ingrid", "Entire Room", "5.0"].
 
         os.remove(out_path)
+        pass
 
     def test_avg_location_rating_by_room_type(self):
         # TODO: Call avg_location_rating_by_room_type() and save the output.
