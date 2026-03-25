@@ -1,8 +1,11 @@
-# SI 201 HW4 (Library Checkout System)
-# Your name: Loryn Canty
+# SI 201 Project 2 - Airbnb Data Scraping and Analysis
+# Your name: Loryn Canty 
 # Your student id: 31004224
 # Your email:
 # Who or what you worked with on this homework (including generative AI like ChatGPT):
+# Your name: Ailyn Moreno
+# Your student id: 49537383
+# Your email: ailynm@umich.edu
 # If you worked with generative AI also add a statement for how you used it.
 # e.g.:
 # Asked ChatGPT for hints on debugging and for suggestions on overall code structure
@@ -245,7 +248,22 @@ def avg_location_rating_by_room_type(data) -> dict:
     # ==============================
     # YOUR CODE STARTS HERE
     # ==============================
-    pass
+    ratings = {}
+    counts = {}
+    for row in data:
+        room_type = row[5]
+        location_rating = row[6]
+        if location_rating == 0.0:
+            continue
+        if room_type not in ratings:
+            ratings[room_type] = 0.0
+            counts[room_type] = 0
+        ratings[room_type] += location_rating
+        counts[room_type] += 1
+    for room_type in ratings:
+        ratings[room_type] /= counts[room_type]
+    return ratings
+    #pass
     # ==============================
     # YOUR CODE ENDS HERE
     # ==============================
