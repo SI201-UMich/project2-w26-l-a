@@ -209,7 +209,7 @@ def output_csv(data, filename) -> None:
     # YOUR CODE STARTS HERE
     # ==============================
     
-    sorted = sorted(data, key=lambda x: x[-1], reverse=True)
+    sorted_data = sorted(data, key=lambda x: x[-1], reverse=True)
     file = open(filename, 'w', newline='')
     writer = csv.writer(file)
     writer.writerow([
@@ -221,7 +221,7 @@ def output_csv(data, filename) -> None:
         "Room Type",
         "Location Rating"
     ])
-    for row in sorted:
+    for row in sorted_data:
         writer.writerow(row)
     file.close()
 
@@ -329,7 +329,9 @@ class TestCases(unittest.TestCase):
 
     def test_load_listing_results(self):
         # TODO: Check that the number of listings extracted is 18.
+        self.assertEqual(len(self.listings), 18)
         # TODO: Check that the FIRST (title, id) tuple is  ("Loft in Mission District", "1944564").
+        self.assertEqual(self.listings[0], ("Loft in Mission District", "1944564"))
         pass
 
     def test_get_listing_details(self):
