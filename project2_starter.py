@@ -45,20 +45,18 @@ def load_listing_results(html_path) -> list[tuple]:
     # YOUR CODE STARTS HERE
     # ==============================
     results = []
+
     with open(html_path, "r", encoding="utf-8-sig") as f:
         soup = BeautifulSoup(f, "html.parser")
-    
-    for link in soup.find_all("a", href=True):
-        href = link["href"]
-        if "/rooms/" not in href:
-            continue
-        listing_id = href.split("/rooms/")[1].split("?")[0]
-        title = link.text.strip()
 
-        if title:
-            results.append((title, listing_id))
-    return results 
+    title_tags = soup.find_all("div", {"data-testid": "listing-card-title"})
 
+    for title_tag in title_tags:
+        title = title_tag.get_text(strip=True)
+        listing_id = title_tag.get("id").replace("title_", "")
+        results.append((title, listing_id))
+
+    return results
     # pass
     # ==============================
     # YOUR CODE ENDS HERE
@@ -88,7 +86,8 @@ def get_listing_details(listing_id) -> dict:
     # ==============================
     # YOUR CODE STARTS HERE
     # ==============================
-    file_path = f"listing_{listing_id}.html"
+    file_path = os.path.join("html_files", f"listing_{listing_id}.html")
+    policy_number = None
     with open(file_path, "r", encoding="utf-8-sig") as f:
         soup = BeautifulSoup(f, "html.parser")
     
@@ -209,7 +208,7 @@ def output_csv(data, filename) -> None:
     # YOUR CODE STARTS HERE
     # ==============================
     
-    sorted_data = sorted(data, key=lambda x: x[-1], reverse=True)
+    sorted_data = sorted(data, key=lambda x: x[-1] or 0, reverse=True)
     file = open(filename, 'w', newline='')
     writer = csv.writer(file)
     writer.writerow([
@@ -345,18 +344,22 @@ class TestCases(unittest.TestCase):
         self.assertEqual(len(self.listings), 18)
         # TODO: Check that the FIRST (title, id) tuple is  ("Loft in Mission District", "1944564").
         self.assertEqual(self.listings[0], ("Loft in Mission District", "1944564"))
-        pass
+        # pass
 
     def test_get_listing_details(self):
         html_list = ["467507", "1550913", "1944564", "4614763", "6092596"]
 
         # TODO: Call get_listing_details() on each listing id above and save results in a list.
-
+        results = [get_listing_details(i) for i in html_list]
         # TODO: Spot-check a few known values by opening the corresponding listing_<id>.html files.
         # 1) Check that listing 467507 has the correct policy number "STR-0005349".
         # 2) Check that listing 1944564 has the correct host type "Superhost" and room type "Entire Room".
         # 3) Check that listing 1944564 has the correct location rating 4.9.
-        pass
+        self.assertEqual(results[0]["policy_number"], "STR-0005349")
+        self.assertEqual(results[2]["host_type"], "Superhost")
+        self.assertEqual(results[2]["room_type"], "Entire Room")
+        self.assertEqual(results[2]["location_rating"], 4.9)
+        # pass
 
     def test_create_listing_database(self):
         # TODO: Check that each tuple in detailed_data has exactly 7 elements:
