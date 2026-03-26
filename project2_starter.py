@@ -313,7 +313,20 @@ def google_scholar_searcher(query):
     # ==============================
     # YOUR CODE STARTS HERE
     # ==============================
-    pass
+
+    url = "https://scholar.google.com/scholar"
+    params = {
+        "q": query
+    }
+    r = requests.get(url, params=params,)
+    
+    soup = BeautifulSoup(r.text, "html.parser")
+    titles = []
+    for tag in soup.find_all("h3", class_="gs_rt"):
+        titles.append(tag.get_text())
+    return titles
+
+    # pass
     # ==============================
     # YOUR CODE ENDS HERE
     # ==============================
