@@ -94,7 +94,7 @@ def get_listing_details(listing_id) -> dict:
     text = soup.text
 
     policy_number = "Exempt"
-    match = re.search(r"20\d{2}-00\d{4}STR", text)
+    match = re.search(r"(20\d{2}-00\d{4}STR|STR-000\d{4})", text)
     if match:
         policy_number = match.group()
     elif "pending" in text.lower():
@@ -286,16 +286,25 @@ def validate_policy_numbers(data) -> list[str]:
     # YOUR CODE STARTS HERE
     # ==============================
     misformatted_listings = []
+    pattern = r"^(20\d{2}-00\d{4}STR|STR-\d{7})$"
     for row in data:
         listing_id = row[1]
         policy_number = str(row[2]).strip()
-        
-        if policy_number in ["Pending", "Exempt"]:
+        room_type = row[5]
+
+        if policy_number == "Exempt":
             continue
-        pattern = r"^20\d{2}-00\d{4}STR$"
+
+        if policy_number == "Pending":
+            if room_type == "Entire Room":
+                continue
+            misformatted_listings.append(listing_id)
+            continue
+
         if not re.match(pattern, policy_number):
             misformatted_listings.append(listing_id)
     return misformatted_listings
+
     #pass
     # ==============================
     # YOUR CODE ENDS HERE
@@ -326,7 +335,7 @@ def google_scholar_searcher(query):
     soup = BeautifulSoup(r.text, "html.parser")
     titles = []
     for tag in soup.find_all("h3", class_="gs_rt"):
-        titles.append(tag.get_text())
+        titles.append(tag.get_text(strip=True))
     return titles
 
     # pass
