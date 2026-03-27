@@ -116,7 +116,6 @@ def get_listing_details(listing_id) -> dict:
         host_name = parts[-1].strip()
     else:
         host_name = full_text.replace("Hosted by", "").strip()
-        
     room_type = "Entire Room"
     subtitle_tag = soup.find("h2")
     if subtitle_tag:
@@ -380,11 +379,20 @@ class TestCases(unittest.TestCase):
         out_path = os.path.join(self.base_dir, "test.csv")
 
         # TODO: Call output_csv() to write the detailed_data to a CSV file.
+        output_csv(self.detailed_data, out_path)
         # TODO: Read the CSV back in and store rows in a list.
+        rows = []
+        with open(out_path, "r", encoding="utf-8-sig") as f:
+            reader = csv.reader(f)
+            next(reader)  # skip header
+            for row in reader:
+                rows.append(row)
         # TODO: Check that the first data row matches ["Guesthouse in San Francisco", "49591060", "STR-0000253", "Superhost", "Ingrid", "Entire Room", "5.0"].
+        expected_first_row = ["Guesthouse in San Francisco", "49591060", "STR-0000253", "Superhost", "Ingrid", "Entire Room", "5.0"]
+        self.assertEqual(rows[0], expected_first_row)
 
         os.remove(out_path)
-        pass
+        #pass
 
     def test_avg_location_rating_by_room_type(self):
         # TODO: Call avg_location_rating_by_room_type() and save the output.
