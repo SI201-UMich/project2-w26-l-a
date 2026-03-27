@@ -110,9 +110,13 @@ def get_listing_details(listing_id) -> dict:
     host_name = ""
     host_tag = soup.find("h2", string=re.compile(r"Hosted by", re.I))
     if host_tag:
-        raw_name = host_tag.text.replace("\xa0", " ")
-        host_name = re.sub(r"Hosted by\s+", "", raw_name, flags=re.I).strip()
-
+        full_text = host_tag.text.replace("\xa0", " ")
+    parts = re.split(r"hosted by", full_text, flags=re.I)
+    if len(parts) > 1:
+        host_name = parts[-1].strip()
+    else:
+        host_name = full_text.replace("Hosted by", "").strip()
+        
     room_type = "Entire Room"
     subtitle_tag = soup.find("h2")
     if subtitle_tag:
