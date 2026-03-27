@@ -15,6 +15,8 @@
 # --- ARGUMENTS & EXPECTED RETURN VALUES PROVIDED --- #
 # --- SEE INSTRUCTIONS FOR FULL DETAILS ON METHOD IMPLEMENTATION --- #
 
+from turtle import title
+
 from bs4 import BeautifulSoup
 import re
 import os
@@ -87,13 +89,12 @@ def get_listing_details(listing_id) -> dict:
     # YOUR CODE STARTS HERE
     # ==============================
     file_path = os.path.join("html_files", f"listing_{listing_id}.html")
-    policy_number = None
     with open(file_path, "r", encoding="utf-8-sig") as f:
         soup = BeautifulSoup(f, "html.parser")
-    
-    text = soup.text 
-    policy_number = None
-    match = re.search(r"STR-\d+", text)
+    text = soup.text
+
+    policy_number = "Exempt"
+    match = re.search(r"(20\d{2}-00\d{4}STR|STR-000\d{4})", text)
     if match:
         policy_number = match.group()
     elif "pending" in text.lower():
@@ -101,47 +102,42 @@ def get_listing_details(listing_id) -> dict:
     elif "exempt" in text.lower():
         policy_number = "Exempt"
 
-    #Not too sure how to do the policy number 
-
     if "Superhost" in text:
         host_type = "Superhost"
     else:
-        host_type = "Regular"
+        host_type = "regular"
     
-    host_name = None
+    host_name = ""
     host_tag = soup.find("h2", string=re.compile(r"Hosted by", re.I))
     if host_tag:
-        host_name = host_tag.text.replace("Hosted by ", "").strip()
-            
-    
-    title = soup.find("title").text
-    if "Private" in title:
-        room_type = "Private Room"
-    elif "Shared" in title:
-        room_type = "Shared Room"
-    else:
-        room_type = "Entire Room"
+        raw_name = host_tag.text.replace("\xa0", " ")
+        host_name = re.sub(r"Hosted by\s+", "", raw_name, flags=re.I).strip()
 
-    location_rating = None
-    lines = text.split("\n")
+    room_type = "Entire Room"
+    subtitle_tag = soup.find("h2")
+    if subtitle_tag:
+        subtitle = subtitle_tag.text
+        if "Private" in subtitle:
+            room_type = "Private Room"
+        elif "Shared" in subtitle:
+            room_type = "Shared Room"
 
-    for i in range(len(lines)):
-        if lines[i].strip() == "Location":
-            if i + 1 < len(lines):
-                try:
-                    location_rating = float(lines[i+1].strip())
-                except:
-                    pass
-            break
+    location_rating = 0.0
+    location_label_div = soup.find('div', class_='_y1ba89', string='Location')
+    if location_label_div:
+        outer_container = location_label_div.find_parent('div', class_='_a3qxec')
+        if outer_container:
+            rating_span = outer_container.find('span', class_='_4oybiu')
+            if rating_span:
+                location_rating = float(rating_span.text.strip())
 
     return {
-    "policy_number": policy_number,
-    "host_type": host_type,
-    "host_name": host_name,
-    "room_type": room_type,
-    "location_rating": location_rating
-}
-
+        "policy_number": policy_number,
+        "host_type": host_type,
+        "host_name": host_name,
+        "room_type": room_type,
+        "location_rating": location_rating
+    }
     # pass
     # ==============================
     # YOUR CODE ENDS HERE
