@@ -288,10 +288,12 @@ def validate_policy_numbers(data) -> list[str]:
     misformatted_listings = []
     for row in data:
         listing_id = row[1]
-        policy_number = row[2]
+        policy_number = str(row[2]).strip()
+        
         if policy_number in ["Pending", "Exempt"]:
             continue
-        if not re.match(r"^(20\d{2}-00\d{4}STR|STR-000\d{4})$", policy_number):
+        pattern = r"^(20\d{2}-00\d{4}STR|STR-000\d{4})$"
+        if not re.match(pattern, policy_number):
             misformatted_listings.append(listing_id)
     return misformatted_listings
     #pass
@@ -399,14 +401,14 @@ class TestCases(unittest.TestCase):
         avg_ratings = avg_location_rating_by_room_type(self.detailed_data)
         # TODO: Check that the average for "Private Room" is 4.9.
         self.assertEqual(avg_ratings.get("Private Room"), 4.9)
-        pass
+       # pass
 
     def test_validate_policy_numbers(self):
         # TODO: Call validate_policy_numbers() on detailed_data and save the result into a variable invalid_listings.
         invalid_listings = validate_policy_numbers(self.detailed_data)
         # TODO: Check that the list contains exactly "16204265" for this dataset.
         self.assertEqual(invalid_listings, ["16204265"])
-        pass
+      #  pass
 
 
 def main():
