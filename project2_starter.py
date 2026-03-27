@@ -1,7 +1,7 @@
 # SI 201 Project 2 - Airbnb Data Scraping and Analysis
 # Your name: Loryn Canty 
 # Your student id: 31004224
-# Your email:
+# Your email: lorync@umich.edu
 # Who or what you worked with on this homework (including generative AI like ChatGPT):
 # Your name: Ailyn Moreno
 # Your student id: 49537383
@@ -94,7 +94,7 @@ def get_listing_details(listing_id) -> dict:
     text = soup.text
 
     policy_number = "Exempt"
-    match = re.search(r"(20\d{2}-00\d{4}STR|STR-000\d{4})", text)
+    match = re.search(r"20\d{2}-00\d{4}STR", text)
     if match:
         policy_number = match.group()
     elif "pending" in text.lower():
@@ -292,7 +292,7 @@ def validate_policy_numbers(data) -> list[str]:
         
         if policy_number in ["Pending", "Exempt"]:
             continue
-        pattern = r"^(20\d{2}-00\d{4}STR|STR-000\d{4})$"
+        pattern = r"^20\d{2}-00\d{4}STR$"
         if not re.match(pattern, policy_number):
             misformatted_listings.append(listing_id)
     return misformatted_listings
